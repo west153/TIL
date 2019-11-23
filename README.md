@@ -1,2 +1,1 @@
-# TIL
-개발 일기장
+# Today I Learned
