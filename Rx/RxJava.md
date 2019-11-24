@@ -52,8 +52,26 @@ just() 함수는 인자로 넣은 데이터를 차례로 발행. 인자는 최�
 
 * 인자가 1개인 just() 함수의 마블 다이어 그램
 <img src="https://raw.githubusercontent.com/wiki/ReactiveX/RxJava/images/rx-operators/just.item.png"></img><br/>
-just() 함수를 거치면 입력한 원(인자의 데이터 타입과 형태) 그대로 발행. 파이프(|) 표시는 모든 데이터 발행이 완료(onCompleted)를 의미한다.
+just() 함수를 거치면 입력한 원(인자의 타입과 형태) 그대로 발행. 파이프(|) 표시는 모든 데이터 발행이 완료(onCompleted)를 의미한다.
 
 * 인자가 N개인 just() 함수의 마블 다이어 그램
 
 <img src="https://raw.githubusercontent.com/wiki/ReactiveX/RxJava/images/rx-operators/just.5.png"></img><br/>
+just() 함수에 인자로 넣은 순서대로 1개씩 타입과 형태 그대로 발행. 모두 발행되면 onCompleted 발생.
+
+코드로 작성하면 아래와 같다.
+
+<pre><code>fun exampleObservable() {
+    val observable = Observable.just(1,2,3,4,5)
+    observable.subscribe(System.out::println, {t: Throwable -> 오류처리 },{System.out.println("발행완료")})
+}
+</code></pre>
+
+실행결과
+<pre><code>1
+2
+3
+4
+5
+발행완료
+</code></pre>
