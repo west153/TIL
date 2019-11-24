@@ -20,3 +20,40 @@ RxJava는 2013년 2월 넷플릭스의 기술 블로그에서 처음으로 소�
 
 * 콜백 방식의 문제점을 개선해야 함.
   * 코드의 가독성을 위해 콜백을 사용하지 않는 방향으로 설계
+
+## 1. Observable
+
+RxJava 프로그래밍은 Observable에서 시작해 Observable로 끝난다고 해도 과언이 아닐 정도로 중요한 개념이다.
+Observable은 객체의 상태 변화가 있을 때마다 등록된 옵서버(관찰자)에게 알림을 보내 옵서버(관찰자)가 데이터를 처리할 수 있도록 옵서버 패턴을 구현한 클래스이다.
+라이프 사이클은 존재하지 않으며 보통 단일 함수를 통해 변화만을 알린다. Android의 OnClickLisener도 옵서버 패턴의 대표적인 예이다.
+
+RxJava의 Observable 클래스는 세 가지의 알림을 구독자에게 발행한다.
+
+* onNext: Observable의 데이터 발행을 알림. 기존 옵서버 패턴과 동일. Observable이 배출하는 항목을 파라미터로 전달 받음.
+
+* onError: Observable에서 어떤 이유로 에러가 발생한경우 알림. onError가 발생하면 Observable이 실행을 종료하며, onNext나 onCompleted 이벤트는 발생하지 않음. 오류 정보를 저장하고 있는 Throwalbe 객체를 파라미터로 전달 받음.
+
+* onComplete: 오류가 발생하지 않았다면 Observable은 마지막 onNext를 호출후 모든 데이터가 발행을 완료했음을 알림.
+
+코드로 작성하면 아래와 같다.
+
+<pre><code>fun exampleObservable() {
+    val observable = Observable.just(1 + 3)
+    val onNext = { item: Int -> 필요한 연산 처리  }
+    val onError = { throwable: Throwable -> 오류 처리  }
+    val onCompleted = { 발행히 완료된후 처리  }
+    observable.subscribe(onNext, onError, onCompleted)
+  }
+</code></pre>
+
+### 1.1 just() 함수
+
+just() 함수는 인자로 넣은 데이터를 차례로 발행. 인자는 최소 한 개의 값부터 최대 10개 값까지 넣을수 있음. 단 타입은 모두 같아야 함. 실제 데이터 발행은 subscribe() 함수를 호출해야 시작함.
+
+* 인자가 1개인 just() 함수의 마블 다이어 그램
+<img src="https://raw.githubusercontent.com/wiki/ReactiveX/RxJava/images/rx-operators/just.item.png"></img><br/>
+just() 함수를 거치면 입력한 원(인자의 데이터 타입과 형태) 그대로 발행. 파이프(|) 표시는 모든 데이터 발행이 완료(onCompleted)를 의미한다.
+
+* 인자가 N개인 just() 함수의 마블 다이어 그램
+
+<img src="https://raw.githubusercontent.com/wiki/ReactiveX/RxJava/images/rx-operators/just.5.png"></img><br/>
