@@ -31,7 +31,7 @@ RxJava의 Observable 클래스는 세 가지의 알림을 구독자에게 발행
 
 * onNext: Observable의 데이터 발행을 알림. 기존 옵서버 패턴과 동일. Observable이 배출하는 항목을 파라미터로 전달 받음.
 
-* onError: Observable에서 어떤 이유로 에러가 발생한경우 알림. onError가 발생하면 Observable이 실행을 종료하며, onNext나 onCompleted 이벤트는 발생하지 않음. 오류 정보를 저장하고 있는 Throwalbe 객체를 파라미터로 전달 받음.
+* onError: Observable에서 어떤 이유로 에러가 발생한경우 알림. onError가 발생하면 Observable이 실행을 종료하며, onNext나 onComplete 이벤트는 발생하지 않음. 오류 정보를 저장하고 있는 Throwalbe 객체를 파라미터로 전달 받음.
 
 * onComplete: 오류가 발생하지 않았다면 Observable은 마지막 onNext를 호출후 모든 데이터가 발행을 완료했음을 알림.
 
@@ -41,8 +41,8 @@ RxJava의 Observable 클래스는 세 가지의 알림을 구독자에게 발행
     val observable = Observable.just(1 + 3)
     val onNext = { item: Int -> 필요한 연산 처리  }
     val onError = { throwable: Throwable -> 오류 처리  }
-    val onCompleted = { 발행히 완료된후 처리  }
-    observable.subscribe(onNext, onError, onCompleted)
+    val onComplete = { 발행히 완료된후 처리  }
+    observable.subscribe(onNext, onError, onComplete)
   }
 </code></pre>
 
@@ -52,12 +52,12 @@ just() 함수는 인자로 넣은 데이터를 차례로 발행. 인자는 최�
 
 * 인자가 1개인 just() 함수의 마블 다이어 그램
 <img src="https://raw.githubusercontent.com/wiki/ReactiveX/RxJava/images/rx-operators/just.item.png"></img><br/>
-just() 함수를 거치면 입력한 원(인자의 타입과 형태) 그대로 발행. 파이프(|) 표시는 모든 데이터 발행이 완료(onCompleted)를 의미한다.
+just() 함수를 거치면 입력한 원(인자의 타입과 형태) 그대로 발행. 파이프(|) 표시는 모든 데이터 발행이 완료(onComplete)를 의미한다.
 
 * 인자가 N개인 just() 함수의 마블 다이어 그램
 
 <img src="https://raw.githubusercontent.com/wiki/ReactiveX/RxJava/images/rx-operators/just.5.png"></img><br/>
-just() 함수에 인자로 넣은 순서대로 1개씩 타입과 형태 그대로 발행. 모두 발행되면 onCompleted 발생.
+just() 함수에 인자로 넣은 순서대로 1개씩 타입과 형태 그대로 발행. 모두 발행되면 onComplete 발생.
 
 코드로 작성하면 아래와 같다.
 
@@ -74,4 +74,45 @@ just() 함수에 인자로 넣은 순서대로 1개씩 타입과 형태 그대�
 4
 5
 발행완료
+</code></pre>
+
+## subscribe() 함수
+
+RxJava는 내가 동작시키기 원하는 것을 사전에 정의해둔 다음 실제 그것이 실행되는 시점을 조절할 수 있다. 이때 사용 하는것이 subscribe() 함수이다.
+RxJava의 데이터를 발행하는 모든 함수들은 subscribe() 함수를 호출해야 실제로 데이터가 발행된다.
+
+subscribe() 함수의 주요 원형은 아래와 같다.
+
+* Disposable subscribe() - onNext와 onComplete 이벤트를 무시하고 onError 이벤트가 발생했을 때만 OnErrorNotImplementedException을 발생시킨다. 주로 테스트용이나 디버깅용으로 활용.
+
+* Disposable subscribe(Consumer<? super T> onNext) - onNext 이벤트를 처리한다. 이 함수도 onError 이벤트가 발생시 OnErrorNotImplementedException을 발생시킨다.
+
+* Disposable subscribe(Consumer<? super T> onNext, Consumer<? super java.lang.Throwalbe> onError) - onNext와 onError 이벤트를 처리.
+
+* Disposable subscribe(Consumer<? super T> onNext, Consumer<? super java.lang.Throwalbe> onError, Action onComplete) - onNext, onError, onComplete 이벤트를 처리.
+
+
+## Disposable 객체
+
+Disposable은 인터페이스이며 RxJava1.x의 Subscription(구독) 객체에 해당한다. 총 2가지의 함수만 정의되어 있다.
+
+* void dispose() - Observable에게 더 이상 데이터를 발행하지 않도록 구독을 해지하는 함수. Observable이 onComplete 알림을 보냈을 때 자동으로 호출됨. onComplete 이벤트가 정상적으로 발생했다면 구독자가 별도로 호출하지 않아도됨.
+* boolean isDisposed() - Observable이 구독을 해지했는지 확인하는 함수.
+
+Disposable 객체 활용 예시 코드와 실행결과
+
+<pre><code>fun testDisposable() {
+    val observable = Observable.just(1,2,3,4,5)
+    val disposable = observable.subscribe(System.out::println, { println(it.message) },{ println("onComplete()") })
+    
+    println("isDisposed() : " + disposable.isDisposed)
+}
+</code></pre>
+<pre><code>1
+2
+3
+4
+5
+onComplete()
+isDisposed() : true
 </code></pre>
