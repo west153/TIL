@@ -52,12 +52,12 @@ just() 함수는 인자로 넣은 데이터를 차례로 발행. 인자는 최�
 
 * 인자가 1개인 just() 함수의 마블 다이어 그램
 <img src="https://raw.githubusercontent.com/wiki/ReactiveX/RxJava/images/rx-operators/just.item.png"></img><br/>
-just() 함수를 거치면 입력한 원(인자의 타입과 형태) 그대로 발행. 파이프(|) 표시는 모든 데이터 발행이 완료(onComplete)를 의미한다.
+just() 함수를 거치면 입력한 원(인자의 상태와 속성)그대로 발행. 파이프(|) 표시는 모든 데이터 발행이 완료(onComplete)를 의미한다.
 
 * 인자가 N개인 just() 함수의 마블 다이어 그램
 
 <img src="https://raw.githubusercontent.com/wiki/ReactiveX/RxJava/images/rx-operators/just.5.png"></img><br/>
-just() 함수에 인자로 넣은 순서대로 1개씩 타입과 형태 그대로 발행. 모두 발행되면 onComplete 발생.
+just() 함수에 인자로 넣은 순서대로 1개씩 인자의 상태와 속성 그대로 발행. 모두 발행되면 onComplete 발생.
 
 코드로 작성하면 아래와 같다.
 
@@ -104,7 +104,6 @@ Disposable 객체 활용 예시 코드와 실행결과
 <pre><code>fun testDisposable() {
     val observable = Observable.just(1,2,3,4,5)
     val disposable = observable.subscribe(System.out::println, { println(it.message) },{ println("onComplete()") })
-    
     println("isDisposed() : " + disposable.isDisposed)
 }
 </code></pre>
@@ -116,3 +115,43 @@ Disposable 객체 활용 예시 코드와 실행결과
 onComplete()
 isDisposed() : true
 </code></pre>
+
+## create() 함수
+
+just() 함수는 데이터를 인자로 넣으면 자동으로 알림이 발생하지만 create() 함수는 개발자가 직접 onNext, onError, onComplete 알림을 호출해야 함.
+
+*  create() 함수의 마블 다이어 그램
+
+<img src="https://raw.githubusercontent.com/wiki/ReactiveX/RxJava/images/rx-operators/create.png"></img><br/>
+
+구독자에게 데이터를 발행하려면 onNext() 함수를 호출해야 하며, 모든 데이터를 발행한 후에 반드시 onComplete() 함수를 호출해야 함.
+
+create() 함수 활용 예시 코드와 실행결과
+
+<pre><code>fun testCreate() {
+  val create = Observable.create<String> {
+    it.onNext("라면")
+    it.onNext("스파게티")
+    it.onNext("국밥")
+    it.onNext("냠냠")
+    it.onComplete()
+  }
+  create.subscribe(System.out::println)
+}
+</code></pre>
+
+<pre><code>라면
+스파게티
+국밥
+냠냠
+</code></pre>
+
+`Observable.create()를 사용시 주의사항!!`
+
+RxJava의 javadoc에 따르면 create() 함수는 RxJava에 익숙한 사용자만 활용하도록 권고한다. 사실 create()를 사용하지 않고 다른 팩토리 함수를 활용하면 같은 효과를 낼 수 있기 때문이다.
+만약 그래도 사용해야 한다면 아래 사항을 확인해야한다.
+
+1. Observable이 구독 해지(dispose)되었을 때 등록된 콜백을 모두 해제해야 함. 그렇지 않으면 메모리 누수(memory leak)가 발생.
+1. 구독자가 구독하는 동안에만 onNext와 onComplete 이벤트를 호출해야 함.
+1. 에러가 발생했을 때는 오직 onError 이벤트로만 에러 전달을 해야 함.
+1. 배압(back pressure)을 직접 처리해야 함. (배압은 추후에 작성)
