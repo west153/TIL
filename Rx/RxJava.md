@@ -155,3 +155,47 @@ RxJava의 javadoc에 따르면 create() 함수는 RxJava에 익숙한 사용자�
 1. 구독자가 구독하는 동안에만 onNext와 onComplete 이벤트를 호출해야 함.
 1. 에러가 발생했을 때는 오직 onError 이벤트로만 에러 전달을 해야 함.
 1. 배압(back pressure)을 직접 처리해야 함. (배압은 추후에 작성)
+
+## fromArray() 함수
+
+위에 다루었던 just() 함수나 create() 함수는 단일 데이터를 발행한다. 단일 데이터가 아닌경우 fromXXX() 종류의 함수를 사용한다.
+RxJava 1.x에서는 from() 함수와 fromCallable() 함수만 사용했었다. 하지만 from() 함수를 배열, 반복자, 비동기 계산 등에 모두 사용하다 보니 모호함이 있어
+RxJava 2에서 from() 함수를 세분화 하였다. 먼저 fromArray() 함수를 설명한다.
+
+fromArray() 함수 활용 예시 코드와 실행결과
+
+* java 코드
+
+<pre><code>void testFromArray(){
+  Integer[] array = {100,1000,10000};
+  Observable<Integer> observable = Observable.fromArray(array);
+  observable.subscribe(System.out::println);
+}
+</code></pre>
+
+* kotlin 코드
+
+<pre><code>fun testFromArray() {
+    val array = arrayOf(100,1000,10000)
+    val observable = Observable.fromArray(*array)
+    observable.subscribe(System.out::println)
+}
+</code></pre>
+
+* 실행결과
+
+<pre><code>100
+1000
+10000
+</code></pre>
+
+숫자뿐만 아니라 사용자 정의 클래스 객체도 넣을 수 있다.
+
+* 만약 Integer[]가 아닌 int[]를 사용한다면 어떤 결과가 나올까?
+
+<pre><code>int[] array = {100,1000,10000};
+  Observable.fromArray(array).subscribe(System.out::println);
+</code></pre>
+
+실행결과는 I@6bc168e5이다. 100, 1000, 10000이 출력될 것이라는 예상과는 다른 결과 이다.
+RxJava에서 int 배열을 인식시키려면 Integer 배열로 변환 해야한다.
