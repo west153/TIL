@@ -199,3 +199,83 @@ fromArray() 함수 활용 예시 코드와 실행결과
 
 실행결과는 I@6bc168e5이다. 100, 1000, 10000이 출력될 것이라는 예상과는 다른 결과 이다.
 RxJava에서 int 배열을 인식시키려면 Integer 배열로 변환 해야한다.
+
+## fromIterable() 함수
+
+Observable을 만드는 다른 방법은 Iterable 인터페이스를 구현한 클래스에서 Observable 객체를 생성 하는것이다.
+Iterable 인터페이스를 구현하는 대표적인 클래스는 ArrayList, BlockingQueue, HashSet, LinkedList, Stack, TreeSet, Vector등이 있다.
+
+1. List 객체를 Observable로 만드는 방법
+
+formIterable()에 List 사용 예제 코드와 실행 결과
+
+<pre><code>fun fromIterable() {
+    val array = arrayListOf("Hello","RxJava","World")
+    val observable = Observable.fromIterable(array)
+    observable.subscribe(System.out::println)
+}
+</code></pre>
+
+<pre><code>Hello
+RxJava
+World
+</code></pre>
+
+2. Set 객체를 Observable로 만드는 방법
+
+formIterable()에 Set 사용 예제 코드와 실행 결과
+
+<pre><code>fun fromIterable() {
+    val set = hashSetOf<Int>(1,2,3)
+    val observable = Observable.fromIterable(set)
+    observable.subscribe(System.out::println)
+}
+</code></pre>
+
+<pre><code>1
+2
+3
+</code></pre>
+
+3. BlockingQueue 객체를 Observable로 만드는 방법
+
+formIterable()에 BlockingQueue 사용 예제 코드와 실행 결과
+
+<pre><code>fun fromIterable() {
+    val blocking = ArrayBlockingQueue<String>(200)
+    blocking.add("삼성")
+    blocking.add("애플")
+    blocking.add("화웨이")
+    val observable = Observable.fromIterable(blocking)
+    observable.subscribe(System.out::println)
+}
+</code></pre>
+
+<pre><code>삼성
+애플
+화웨이
+</code></pre>
+
+4. Map 객체를 Observable로 만드는 방법
+
+Map 객체에 관한 Observable 클래스의 from() 함수는 존재하지 않는다. Map 인터페이스는 배열도 아니고 Iterable 인터페이스를 구현하지 않았으므로 from() 계열 함수는 존재하지 않는다.
+하여 다른방법이 여러가지 있지만 fromIterable 함수를 활용하여 최대한 쉽게 코드를 작성 해보았다.
+
+예제 코드 와 실행 결과
+
+<pre><code>fun fromIterable() {
+    val hashMap = hashMapOf("삼성" to "갤럭시", "애플" to "아이폰")
+    val observable = Observable.fromIterable(hashMap.keys)
+        .map { key -> hashMap[key] }
+    
+    observable.subscribe(System.out::println)
+}
+</code></pre>
+
+<pre><code>갤럭시
+아이폰
+</code></pre>
+
+우선 hashMap 객체의 키들을 fromIterable() 함수로 발행하고 map() 함수로 발행된 키를 가지고 hashMap 객체의 값을 가져오는 코드이다.
+여기서 map() 함수는 추후에 설명하겠지만, 먼저 짧게 설명하자면 앞에서 발행된 데이터를 가지고 가공을 하여 새로운 객체로 만들어주는 함수이다.
+위에 코드에서는 발행된 키를 가지고 hashMap[key] 코드로 값을 가져와 값이라는 데이터로 가공을 하였다.
